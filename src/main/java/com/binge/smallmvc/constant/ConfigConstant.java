@@ -10,7 +10,7 @@ package com.binge.smallmvc.constant;
 
 public class ConfigConstant {
 
-    public static final String CONFIG_FILE = "project.properties";
+    public static final String CONFIG_FILE = "/project.properties";
 
     public static final String JDBC_DRIVER = "com.binge.smallmvc.jdbc.driver";
     public static final String JDBC_URL = "com.binge.smallmvc.jdbc.url";
