@@ -24,4 +24,6 @@ public class ConfigConstant {
     public static final String DEFAULT_APP_JSP_PATH = "/WEB-INF/view/";
     public static final String DEFAULT_APP_ASSET_PATH = "/asset/";
 
+    public static final String APP_UPLOAD_LIMIT = "com.binge.smallmvc.app.upload_limit";
+
 }

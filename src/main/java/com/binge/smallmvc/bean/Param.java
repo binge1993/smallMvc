@@ -24,7 +24,7 @@ public class Param {
         return CastUtil.castLong(paramMap.get(name));
     }
 
-    public Map<String, Object> getMap() {
+    public Map<String, Object> getFieldMap() {
         return paramMap;
     }
 

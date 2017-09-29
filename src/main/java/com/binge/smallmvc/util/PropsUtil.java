@@ -1,12 +1,12 @@
 package com.binge.smallmvc.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +32,13 @@ public class PropsUtil {
     public static Properties loadProps(String configFilePath) {
 
         Reader reader = null;
-        InputStream is = ClassUtil.getClassLoader().getResourceAsStream(configFilePath);
+        InputStream is = null;
         Properties property = new Properties();
         try {
+            is = ClassUtil.getClassLoader().getResourceAsStream(configFilePath);
+            if (is == null) {
+                throw new FileNotFoundException("File not found :" + configFilePath);
+            }
             reader = new InputStreamReader(is, "UTF-8");
             property.load(reader);
         } catch (Throwable ex) {
@@ -62,36 +66,56 @@ public class PropsUtil {
     }
 
     /**
-     * 获取配置属性
-     * 
-     * @param configProps
-     * @param key
-     * @return
-     * @throws exception
+     * 获取 String 类型的属性值（默认值为空字符串）
      */
-    public static String getString(Properties configProps, String key) {
-        if (configProps == null || StringUtils.isBlank(key)) {
-            return null;
-        }
-
-        return configProps.getProperty(key);
+    public static String getString(Properties props, String key) {
+        return getString(props, key, "");
     }
 
     /**
-     * 获取配置属性，获取不到使用默认值
-     * 
-     * @param configProps
-     * @param appJspPath
-     * @param string
-     * @return
-     * @throws exception
+     * 获取 String 类型的属性值（可指定默认值）
      */
-    public static String getString(Properties configProps, String key, String defaultValue) {
-        if (configProps == null || StringUtils.isBlank(key)) {
-            return defaultValue;
+    public static String getString(Properties props, String key, String defaultValue) {
+        String value = defaultValue;
+        if (props.containsKey(key)) {
+            value = props.getProperty(key);
         }
-
-        return configProps.getProperty(key, defaultValue);
+        return value;
     }
 
+    /**
+     * 获取 int 类型的属性值（默认值为 0）
+     */
+    public static Integer getInt(Properties props, String key) {
+        return getInt(props, key, 0);
+    }
+
+    /**
+     * 获取 int 类型的属性值（可指定默认值）
+     */
+    public static Integer getInt(Properties props, String key, int defaultValue) {
+        int value = defaultValue;
+        if (props.containsKey(key)) {
+            value = CastUtil.castInt(props.getProperty(key));
+        }
+        return value;
+    }
+
+    /**
+     * 获取 boolean 类型属性（默认值为 false）
+     */
+    public static Boolean getBoolean(Properties props, String key) {
+        return getBoolean(props, key, false);
+    }
+
+    /**
+     * 获取 boolean 类型属性（可指定默认值）
+     */
+    public static Boolean getBoolean(Properties props, String key, boolean defaultValue) {
+        boolean value = defaultValue;
+        if (props.containsKey(key)) {
+            value = CastUtil.castBoolean(props.getProperty(key));
+        }
+        return value;
+    }
 }
