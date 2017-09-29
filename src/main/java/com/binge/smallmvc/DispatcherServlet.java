@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -22,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.binge.smallmvc.bean.Data;
 import com.binge.smallmvc.bean.Handler;
 import com.binge.smallmvc.bean.Param;
-import com.binge.smallmvc.bean.View;
 import com.binge.smallmvc.helper.BeanHelper;
 import com.binge.smallmvc.helper.ConfigHelper;
 import com.binge.smallmvc.helper.ControllerHelper;
