@@ -10,7 +10,7 @@ import java.util.Map;
  * @encoding UTF8
  * @Description 返回视图对象
  */
-
+@Deprecated
 public class View {
 
     private final String path;
