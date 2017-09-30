@@ -10,7 +10,10 @@ package com.binge.smallmvc.constant;
 
 public class ConfigConstant {
 
+    // 基础配置
     public static final String CONFIG_FILE = "/project.properties";
+    // 数据库配置
+    public static final String DATASOURCE_FILE = "/dataSource.properties";
 
     public static final String JDBC_DRIVER = "com.binge.smallmvc.jdbc.driver";
     public static final String JDBC_URL = "com.binge.smallmvc.jdbc.url";
