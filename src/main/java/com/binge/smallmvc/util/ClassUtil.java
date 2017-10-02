@@ -95,7 +95,7 @@ public class ClassUtil {
 
         Set<Class<?>> classSet = new HashSet<Class<?>>();
         try {
-            Enumeration<URL> urls = getClassLoader().getResources(packageName.replaceAll(".", "/"));
+            Enumeration<URL> urls = getClassLoader().getResources(packageName.replaceAll("\\.", "/"));
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
                 if (url == null) {

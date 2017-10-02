@@ -23,7 +23,7 @@ public class SequenceC implements Sequence {
     }
 
     public static void main(String[] args) {
-        Sequence sequence = new SequenceC();
+        final Sequence sequence = new SequenceC();
 
         new Thread(new Runnable() {
             @Override
