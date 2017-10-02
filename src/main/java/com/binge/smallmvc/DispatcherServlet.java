@@ -3,7 +3,6 @@ package com.binge.smallmvc;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,13 +17,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.binge.smallmvc.bean.Data;
 import com.binge.smallmvc.bean.Handler;
 import com.binge.smallmvc.bean.Param;
 import com.binge.smallmvc.helper.BeanHelper;
 import com.binge.smallmvc.helper.ConfigHelper;
 import com.binge.smallmvc.helper.ControllerHelper;
-import com.binge.smallmvc.util.ArrayUtil;
 import com.binge.smallmvc.util.CodecUtil;
 import com.binge.smallmvc.util.JsonUtil;
 import com.binge.smallmvc.util.ReflectionUtil;
@@ -43,17 +42,18 @@ public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 5162695042755691082L;
 
 	@Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-    	
-        // 初始化相关 Helper 类
-        HelperLoader.init();
-        // 获取 ServletContext 对象（用于注册 Servlet）
-        ServletContext servletContext = servletConfig.getServletContext();
-        // 注册处理静态资源的默认 Servlet
-        ServletRegistration defaultServlet = servletContext.getServletRegistration("default");
-        defaultServlet.addMapping(ConfigHelper.getAppAssetPath() + "*");
+	public void init(ServletConfig servletConfig) throws ServletException {
 
-    }
+		// 初始化相关 Helper 类
+		HelperLoader.init();
+		// 获取 ServletContext 对象（用于注册 Servlet）
+		ServletContext servletContext = servletConfig.getServletContext();
+		// 注册处理静态资源的默认 Servlet
+		ServletRegistration defaultServlet = servletContext
+				.getServletRegistration("default");
+		defaultServlet.addMapping(ConfigHelper.getAppAssetPath() + "*");
+
+	}
 
 	@Override
 	protected void service(HttpServletRequest request,
@@ -73,14 +73,6 @@ public class DispatcherServlet extends HttpServlet {
 		Object controllerBean = BeanHelper.getBean(controllerClass);
 		// 创建请求参数对象
 		Map<String, Object> paramMap = new HashMap<>();
-		Enumeration<String> paramNames = request.getParameterNames();
-
-		while (paramNames.hasMoreElements()) {
-			String paramName = paramNames.nextElement();
-			String paramValue = request.getParameter(paramName);
-			paramMap.put(paramName, paramValue);
-		}
-
 		String body = CodecUtil
 				.decodeURL(StreamUtil.getString(request.getInputStream()));
 		handleParamBody(body, paramMap);
@@ -127,26 +119,15 @@ public class DispatcherServlet extends HttpServlet {
 	 * @param body
 	 * @param paramMap
 	 */
+	@SuppressWarnings("unchecked")
 	private void handleParamBody(String body, Map<String, Object> paramMap) {
 		if (StringUtils.isBlank(body)) {
 			return;
 		}
 
-		String[] params = StringUtils.splitByWholeSeparator(body, "&");
-		if (ArrayUtil.isEmpty(params)) {
-			return;
-		}
+		Map<String, Object> params = JSON.parseObject(body, Map.class);
 
-		for (String param : params) {
-			String[] array = StringUtils.splitByWholeSeparator(param, "=");
-			if (ArrayUtil.isEmpty(array) || array.length != 2) {
-				continue;
-			}
-
-			String paramName = array[0];
-			String paramValue = array[1];
-			paramMap.put(paramName, paramValue);
-		}
+		paramMap.putAll(params);
 	}
 
 }
