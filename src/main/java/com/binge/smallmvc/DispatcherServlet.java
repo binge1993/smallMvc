@@ -3,8 +3,6 @@ package com.binge.smallmvc;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -15,19 +13,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.alibaba.fastjson.JSON;
 import com.binge.smallmvc.bean.Data;
 import com.binge.smallmvc.bean.Handler;
 import com.binge.smallmvc.bean.Param;
 import com.binge.smallmvc.helper.BeanHelper;
 import com.binge.smallmvc.helper.ConfigHelper;
 import com.binge.smallmvc.helper.ControllerHelper;
-import com.binge.smallmvc.util.CodecUtil;
+import com.binge.smallmvc.helper.RequestHelper;
+import com.binge.smallmvc.helper.ServletHelper;
+import com.binge.smallmvc.helper.UploadHelper;
 import com.binge.smallmvc.util.JsonUtil;
 import com.binge.smallmvc.util.ReflectionUtil;
-import com.binge.smallmvc.util.StreamUtil;
+import com.binge.smallmvc.wrapper.RepeatedlyReadRequestWrapper;
 
 /**
  * @author binge
@@ -52,38 +49,56 @@ public class DispatcherServlet extends HttpServlet {
 		ServletRegistration defaultServlet = servletContext
 				.getServletRegistration("default");
 		defaultServlet.addMapping(ConfigHelper.getAppAssetPath() + "*");
-
 	}
 
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		// 获取请求方法与请求路径
-		String requestMethod = request.getMethod().toLowerCase();
-		String requestPath = request.getPathInfo();
-		// 获取 Action 处理器
-		Handler handler = ControllerHelper.getHandler(requestMethod,
-				requestPath);
-		if (handler == null) {
-			return;
+		// 使用可重复读流的request
+		RepeatedlyReadRequestWrapper requestWrapper = new RepeatedlyReadRequestWrapper(
+				request);
+
+		// 初始化 Servlet 助手类
+		ServletHelper.init(requestWrapper, response);
+		try {
+
+			// 获取请求方法与请求路径
+			String requestMethod = requestWrapper.getMethod().toLowerCase();
+			String requestPath = requestWrapper.getPathInfo();
+			// 获取 Action 处理器
+			Handler handler = ControllerHelper.getHandler(requestMethod,
+					requestPath);
+			if (handler == null) {
+				return;
+			}
+
+			// 获取 Controller 类及其 Bean 实例
+			Class<?> controllerClass = handler.getControllerClass();
+			Object controllerBean = BeanHelper.getBean(controllerClass);
+			// 创建请求参数对象
+			Param param;
+			if (UploadHelper.isMultipart(requestWrapper)) {
+				param = UploadHelper.createParam(requestWrapper);
+			} else {
+				param = RequestHelper.createParam(requestWrapper);
+			}
+
+			Object result;
+			Method actionMethod = handler.getActionMethod();
+			if (param.isEmpty()) {
+				result = ReflectionUtil.invokeMethod(controllerBean,
+						actionMethod);
+			} else {
+				result = ReflectionUtil.invokeMethod(controllerBean,
+						actionMethod, param);
+			}
+			// 处理 Action 方法返回值
+			handleRetrunData(requestWrapper, response, result);
+
+		} finally {
+			// 销毁 Servlet 助手类
+			ServletHelper.destroy();
 		}
-
-		// 获取 Controller 类及其 Bean 实例
-		Class<?> controllerClass = handler.getControllerClass();
-		Object controllerBean = BeanHelper.getBean(controllerClass);
-		// 创建请求参数对象
-		Map<String, Object> paramMap = new HashMap<>();
-		String body = CodecUtil
-				.decodeURL(StreamUtil.getString(request.getInputStream()));
-		handleParamBody(body, paramMap);
-
-		Param param = new Param(paramMap);
-		// 调用 Action 方法
-		Method actionMethod = handler.getActionMethod();
-		Object result = ReflectionUtil.invokeMethod(controllerBean,
-				actionMethod, param);
-		// 处理 Action 方法返回值
-		handleRetrunData(request, response, result);
 
 	}
 
@@ -111,23 +126,6 @@ public class DispatcherServlet extends HttpServlet {
 		writer.write(json);
 		writer.flush();
 		writer.close();
-	}
-
-	/**
-	 * 处理请求参数
-	 * 
-	 * @param body
-	 * @param paramMap
-	 */
-	@SuppressWarnings("unchecked")
-	private void handleParamBody(String body, Map<String, Object> paramMap) {
-		if (StringUtils.isBlank(body)) {
-			return;
-		}
-
-		Map<String, Object> params = JSON.parseObject(body, Map.class);
-
-		paramMap.putAll(params);
 	}
 
 }

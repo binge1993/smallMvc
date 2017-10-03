@@ -2,8 +2,6 @@ package com.binge.smallmvc.proxy;
 
 import java.lang.reflect.Method;
 
-import javax.activation.DataHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
