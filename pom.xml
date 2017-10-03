@@ -133,7 +133,6 @@
 			<version>3.2.5</version>
 		</dependency>
 
-
 		<!-- commons-httpclient -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -141,6 +140,19 @@
 			<version>4.5.2</version>
 		</dependency>
 
+		<!-- apache shiro -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-web</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+
+		<!-- auto load cache -->
+		<dependency>
+			<groupId>com.github.qiujiayu</groupId>
+			<artifactId>autoload-cache</artifactId>
+			<version>6.6</version>
+		</dependency>
 
 
 	</dependencies>

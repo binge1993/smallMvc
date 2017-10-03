@@ -14,6 +14,8 @@ public class ConfigConstant {
     public static final String CONFIG_FILE = "/project.properties";
     // 数据库配置
     public static final String DATASOURCE_FILE = "/dataSource.properties";
+    // 自动加载缓存配置
+    public static final String AUTO_LOAD_FILE = "/autoLoad.properties";
 
     public static final String JDBC_DRIVER = "com.binge.smallmvc.jdbc.driver";
     public static final String JDBC_URL = "com.binge.smallmvc.jdbc.url";
